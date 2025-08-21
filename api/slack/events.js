@@ -1,38 +1,72 @@
-// ARQUIVO: api/slack/events.js
 import bolt from '@slack/bolt';
-import { generateProject } from '../../lib/project-generator.js'; // <-- Importamos nossa lógica!
+import { generateProject } from '../../lib/project-generator.js';
 
 const { App } = bolt;
+
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
   signingSecret: process.env.SLACK_SIGNING_SECRET,
+  processBeforeResponse: true, // Importante para Vercel
 });
 
-// ... (O código do app.command('/criar-projeto', ...) continua o mesmo)
+// Ouve pelo comando /criar-projeto
+app.command('/criar-projeto', async ({ ack, body, client, logger }) => {
+  await ack();
+  try {
+    await client.views.open({
+      trigger_id: body.trigger_id,
+      view: {
+        type: 'modal',
+        callback_id: 'create_project_view',
+        title: { type: 'plain_text', text: 'Novo Projeto Synapse B2B' },
+        blocks: [
+          {
+            type: 'input',
+            block_id: 'project_name_block',
+            element: { type: 'plain_text_input', action_id: 'project_name_input' },
+            label: { type: 'plain_text', text: 'Nome Completo do Projeto' }
+          },
+          {
+            type: 'input',
+            block_id: 'repo_name_block',
+            element: { type: 'plain_text_input', action_id: 'repo_name_input' },
+            label: { type: 'plain_text', text: 'Nome do Repositório no GitHub' }
+          }
+        ],
+        submit: { type: 'plain_text', text: 'Criar Projeto' }
+      }
+    });
+  } catch (error) {
+    logger.error(error);
+  }
+});
 
 // Ouve pelo envio do formulário
 app.view('create_project_view', async ({ ack, body, view, client, logger }) => {
-  await ack();
+  await ack({
+    response_action: 'update',
+    view: {
+      type: 'modal',
+      title: { type: 'plain_text', text: 'Processando...' },
+      blocks: [
+        {
+          type: 'section',
+          text: { type: 'mrkdwn', text: 'Recebi seu pedido! Um momento enquanto eu preparo tudo... 🧙‍♂️' }
+        }
+      ]
+    }
+  });
 
   const user = body.user.id;
   const projectName = view.state.values.project_name_block.project_name_input.value;
   const repoName = view.state.values.repo_name_block.repo_name_input.value;
-
-  // Assume o tipo "Cliente" por padrão para o Slack, podemos adicionar a pergunta depois
-  const projectType = 'client'; 
-  const description = `Projeto para ${projectName}`;
+  const projectType = 'client'; // Assumindo cliente, como antes
+  const description = `Projeto: ${projectName}`;
 
   try {
-    await client.chat.postMessage({
-      channel: user,
-      text: `Ok! Recebi o pedido para o projeto "${projectName}". Começando a mágica... 🧙‍♂️`
-    });
-
-    // =================================================================
     // AQUI A MÁGICA ACONTECE!
     await generateProject({ projectType, projectName, repoName, description });
-    // =================================================================
-
+    
     await client.chat.postMessage({
       channel: user,
       text: `🎉 Pronto! O projeto "${projectName}" foi criado com sucesso!`
@@ -42,9 +76,16 @@ app.view('create_project_view', async ({ ack, body, view, client, logger }) => {
     logger.error(error);
     await client.chat.postMessage({
       channel: user,
-      text: `❌ Opa, algo deu errado: ${error.message}`
+      text: `❌ Opa, algo deu errado na criação do projeto "${projectName}": ${error.message}`
     });
   }
 });
 
-// ... (o resto do código, app.command e o boilerplate da Vercel, continua o mesmo)
+
+// ESTA É A PARTE QUE FALTAVA - O EXPORT PARA A VERCEL
+const handler = async (req, res) => {
+  await app.start();
+  return await app.handle(req, res);
+};
+
+export default handler;
