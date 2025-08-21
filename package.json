@@ -1,0 +1,21 @@
+{
+  "name": "framework-padrao-synapse-b2b",
+  "version": "1.0.0",
+  "description": "",
+  "main": "create-project.js",
+  "type": "module",
+  "scripts": {
+    "start": "node create-project.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@octokit/rest": "^22.0.0",
+    "@slack/bolt": "^4.4.0",
+    "dotenv": "^17.2.1",
+    "execa": "^9.6.0",
+    "inquirer": "^9.3.7",
+    "octokit": "^5.0.3"
+  }
+}
