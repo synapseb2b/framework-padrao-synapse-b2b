@@ -4,9 +4,9 @@
   "description": "",
   "main": "create-project.js",
   "type": "module",
-  "scripts": {
-    "start": "node create-project.js"
-  },
+"scripts": {
+  "start": "node create-project.js"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
