@@ -1,10 +1,10 @@
-{
+﻿{
   "name": "framework-padrao-synapse-b2b",
   "version": "1.0.0",
   "description": "",
   "main": "create-project.js",
   "type": "module",
-  "scripts": {
+  "scripts": {"sync:copy":"node --env-file=.env scripts/sync-copy.mjs", 
     "snapshot": "node scripts/generate-last-good.mjs",
     "start": "http-server . -p 3000",
     "cli": "node create-project.js",
@@ -29,3 +29,4 @@
     "yaml-lint": "^1.7.0"
   }
 }
+

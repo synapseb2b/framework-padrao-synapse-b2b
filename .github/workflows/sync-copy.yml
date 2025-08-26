@@ -1,0 +1,32 @@
+﻿name: sync-copy
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 10 * * *"   # 07:00 BRT (approx), ajuste depois se quiser
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      SHEETS_CSV_URL: ${{ secrets.SHEETS_CSV_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - run: npm ci
+      - name: Sync copy from Sheets CSV
+        run: node scripts/sync-copy.mjs
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore(copy): sync do Sheets (CSV)"
+          branch: chore/sync-copy
+          title: "chore(copy): sync do Sheets (CSV)"
+          body: "Atualiza config/copy/pt-BR.yaml a partir do Sheets."
+          labels: copy, automation
