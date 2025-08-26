@@ -1,4 +1,5 @@
-﻿name: ci-quality
+﻿@'
+name: ci-quality
 on:
   pull_request:
     branches: [main]
@@ -12,8 +13,13 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: "20" }
       - run: npm ci
-      - run: npm run start & npx wait-on http://localhost:3000
+
+      - name: Start server (static) and wait
+        run: npx http-server . -p 3000 & npx wait-on http://localhost:3000
+
       - name: A11y (axe)
         run: npx @axe-core/cli http://localhost:3000 --exit
+
       - name: Lighthouse CI
         run: npx lhci autorun --config=./.lighthouserc.json
+'@ | Set-Content .github\workflows\ci-quality.yml -Encoding UTF8
