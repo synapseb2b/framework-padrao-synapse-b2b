@@ -1,0 +1,17 @@
+﻿name: ci-quality
+on:
+  pull_request:
+    branches: [main]
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - run: npm ci
+      - run: npm run start & npx wait-on http://localhost:3000
+      - name: A11y (axe)
+        run: npx @axe-core/cli http://localhost:3000 --exit
+      - name: Lighthouse CI
+        run: npx lhci autorun --config=./.lighthouserc.json
