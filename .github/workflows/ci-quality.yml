@@ -16,10 +16,14 @@ jobs:
       - name: Start server (static) and wait
         run: npx http-server . -p 3000 & npx wait-on http://localhost:3000
 
-      - name: A11y (axe) - generate report
-        run: npx @axe-core/cli http://localhost:3000 --save ./axe-report.json --exit
-        # Se quiser DESTRAVAR só hoje, troque a linha acima por esta abaixo:
-        # run: npx @axe-core/cli http://localhost:3000 --save ./axe-report.json || echo "Axe violations found (temporário)"; 
+      # 1) Gera o relatório SEM falhar o job
+      - name: A11y (axe) - generate report (no fail)
+        run: npx @axe-core/cli http://localhost:3000 --save ./axe-report.json || echo "axe returned non-zero; continuing to publish report"
+
+      # 2) Lê o JSON e falha se houver violações
+      - name: A11y (axe) - enforce
+        run: |
+          node -e "const fs=require('fs');const p='axe-report.json';if(!fs.existsSync(p)){console.error('axe-report.json não encontrado');process.exit(1)};const j=JSON.parse(fs.readFileSync(p,'utf8'));const v=(j.violations||[]);console.log('Violations:',v.length); if(v.length>0){console.error('A11y falhou com',v.length,'violações'); process.exit(1)}"
 
       - name: Upload axe report
         if: always()
