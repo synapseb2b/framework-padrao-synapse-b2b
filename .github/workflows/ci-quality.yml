@@ -2,6 +2,8 @@
 on:
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
 jobs:
   quality:
     runs-on: ubuntu-latest
@@ -10,8 +12,26 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: "20" }
       - run: npm ci
-      - run: npm run start & npx wait-on http://localhost:3000
-      - name: A11y (axe)
-        run: npx @axe-core/cli http://localhost:3000 --exit
+
+      - name: Start server (static) and wait
+        run: npx http-server . -p 3000 & npx wait-on http://localhost:3000
+
+      # 1) Gera o relatório SEM falhar o job
+      -- name: A11y (axe) - generate report (tolerante)
+      run: npx @axe-core/cli http://localhost:3000 --save ./axe-report.json || echo "Axe violations found (tolerado por enquanto)"
+
+
+      # 2) Lê o JSON e falha se houver violações
+      - name: A11y (axe) - enforce
+        run: |
+          node -e "const fs=require('fs');const p='axe-report.json';if(!fs.existsSync(p)){console.error('axe-report.json não encontrado');process.exit(1)};const j=JSON.parse(fs.readFileSync(p,'utf8'));const v=(j.violations||[]);console.log('Violations:',v.length); if(v.length>0){console.error('A11y falhou com',v.length,'violações'); process.exit(1)}"
+
+      - name: Upload axe report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: axe-report
+          path: axe-report.json
+
       - name: Lighthouse CI
         run: npx lhci autorun --config=./.lighthouserc.json
