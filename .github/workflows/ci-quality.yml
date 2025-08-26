@@ -17,8 +17,9 @@ jobs:
         run: npx http-server . -p 3000 & npx wait-on http://localhost:3000
 
       # 1) Gera o relatório SEM falhar o job
-      - name: A11y (axe) - generate report (no fail)
-        run: npx @axe-core/cli http://localhost:3000 --save ./axe-report.json || echo "axe returned non-zero; continuing to publish report"
+      -- name: A11y (axe) - generate report (tolerante)
+      run: npx @axe-core/cli http://localhost:3000 --save ./axe-report.json || echo "Axe violations found (tolerado por enquanto)"
+
 
       # 2) Lê o JSON e falha se houver violações
       - name: A11y (axe) - enforce
