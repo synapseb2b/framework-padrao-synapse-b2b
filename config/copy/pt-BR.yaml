@@ -1,0 +1,23 @@
+﻿hero:
+  title: "Engenharia multidisciplinar para projetos, obras e manutenção"
+  subtitle: "Integramos civil, elétrica, mecânica, automação e climatização."
+  primaryCta: "Orçar"
+  secondaryCta: "Cases"
+
+segments:
+  title: "Atuamos nos principais segmentos"
+  items:
+    - id: industrial
+      title: "Indústria"
+      desc: "Adequação de plantas, utilidades e áreas classificadas."
+    - id: comercial
+      title: "Comercial"
+      desc: "Modernização de instalações e climatização eficiente."
+
+simulator:
+  title: "Simulador de orçamento"
+  disclaimer: "Valores indicativos, sujeitos a validação técnica."
+
+ctaFinal:
+  title: "Fale com um engenheiro"
+  subtitle: "Envie seu desafio e receba um caminho claro."

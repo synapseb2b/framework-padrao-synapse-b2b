@@ -5,6 +5,7 @@
   "main": "create-project.js",
   "type": "module",
   "scripts": {
+    "snapshot": "node scripts/generate-last-good.mjs",
     "start": "http-server . -p 3000",
     "cli": "node create-project.js",
     "lhci": "lhci autorun --config=./.lighthouserc.json"
@@ -24,7 +25,7 @@
     "@lhci/cli": "^0.15.1",
     "http-server": "^14.1.1",
     "wait-on": "^8.0.4",
+    "yaml": "^2.8.1",
     "yaml-lint": "^1.7.0"
   }
 }
-

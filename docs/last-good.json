@@ -1,0 +1,61 @@
+{
+  "generatedAt": "2025-08-26T20:57:00.198Z",
+  "site": {
+    "project": "exclusiva-engenharias",
+    "segment": "industrial",
+    "locale": "pt-BR",
+    "pages": [
+      {
+        "id": "home",
+        "route": "/",
+        "blocks": [
+          "hero.basic",
+          "segments.grid",
+          "hub.multidisciplinar",
+          "socialproof.quotes",
+          "gallery.works",
+          "simulator.cta",
+          "cta.final"
+        ]
+      }
+    ],
+    "seo": {
+      "org": {
+        "name": "Exclusiva Engenharias",
+        "logo": "/public/logo.png"
+      }
+    }
+  },
+  "copy": {
+    "hero": {
+      "title": "Engenharia multidisciplinar para projetos, obras e manutenção",
+      "subtitle": "Integramos civil, elétrica, mecânica, automação e climatização.",
+      "primaryCta": "Orçar",
+      "secondaryCta": "Cases"
+    },
+    "segments": {
+      "title": "Atuamos nos principais segmentos",
+      "items": [
+        {
+          "id": "industrial",
+          "title": "Indústria",
+          "desc": "Adequação de plantas, utilidades e áreas classificadas."
+        },
+        {
+          "id": "comercial",
+          "title": "Comercial",
+          "desc": "Modernização de instalações e climatização eficiente."
+        }
+      ]
+    },
+    "simulator": {
+      "title": "Simulador de orçamento",
+      "disclaimer": "Valores indicativos, sujeitos a validação técnica."
+    },
+    "ctaFinal": {
+      "title": "Fale com um engenheiro",
+      "subtitle": "Envie seu desafio e receba um caminho claro."
+    }
+  },
+  "version": 1
+}

@@ -1,0 +1,20 @@
+﻿project: exclusiva-engenharias
+segment: industrial
+locale: pt-BR
+
+pages:
+  - id: home
+    route: "/"
+    blocks:
+      - hero.basic
+      - segments.grid
+      - hub.multidisciplinar
+      - socialproof.quotes
+      - gallery.works
+      - simulator.cta
+      - cta.final
+
+seo:
+  org:
+    name: "Exclusiva Engenharias"
+    logo: "/public/logo.png"
