@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "framework-padrao-synapse-b2b",
   "version": "1.0.0",
   "description": "",
@@ -27,3 +27,4 @@
     "yaml-lint": "^1.7.0"
   }
 }
+
