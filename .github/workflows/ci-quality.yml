@@ -2,6 +2,8 @@
 on:
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
 jobs:
   quality:
     runs-on: ubuntu-latest
@@ -10,8 +12,21 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: "20" }
       - run: npm ci
-      - run: npm run start & npx wait-on http://localhost:3000
-      - name: A11y (axe)
-        run: npx @axe-core/cli http://localhost:3000 --exit
+
+      - name: Start server (static) and wait
+        run: npx http-server . -p 3000 & npx wait-on http://localhost:3000
+
+      - name: A11y (axe) - generate report
+        run: npx @axe-core/cli http://localhost:3000 --save ./axe-report.json --exit
+        # Se quiser DESTRAVAR só hoje, troque a linha acima por esta abaixo:
+        # run: npx @axe-core/cli http://localhost:3000 --save ./axe-report.json || echo "Axe violations found (temporário)"; 
+
+      - name: Upload axe report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: axe-report
+          path: axe-report.json
+
       - name: Lighthouse CI
         run: npx lhci autorun --config=./.lighthouserc.json
