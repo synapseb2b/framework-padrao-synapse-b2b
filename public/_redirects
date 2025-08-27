@@ -1,0 +1,5 @@
+﻿# Forçar www → root (ex.: https://www.seudominio.com → https://seudominio.com)
+https://www.seudominio.com/* https://seudominio.com/:splat 301!
+
+# Exemplo: redirecionar /blog antigo para /news
+/blog/*   /news/:splat   301
