@@ -56,16 +56,17 @@
     }
   },
   "flags": {
-    "motionIntensity": "sutil",
+    "motionIntensity": "vivo",
     "features": {
       "hero": true,
       "footer": true
     }
   },
   "perf": {
+    "imageMaxKB": 180,
     "budgets": {
-      "homepage_kb": 180,
-      "block_kb": 40
+      "homeKB": 180,
+      "blockKB": 40
     }
   }
 }

@@ -71,6 +71,24 @@ function renderHTML(data) {
     a{color:var(--fg)}
     ${motionCSS}
   </style>
+  <script>
+(function(){
+  function log(name, value){ try{ console.log("[WEB-VITAL]", name, value); }catch(e){} }
+  if("PerformanceObserver" in window){
+    try{
+      const perf = window.performance;
+      // LCP
+      new PerformanceObserver((list)=>{ const e=list.getEntries().pop(); if(e) log("LCP", Math.round(e.startTime)); }).observe({type:"largest-contentful-paint", buffered:true});
+      // CLS
+      let cls=0; new PerformanceObserver((list)=>{ for(const e of list.getEntries()){ if(!e.hadRecentInput){ cls += e.value; } } log("CLS", +cls.toFixed(3)); }).observe({type:"layout-shift", buffered:true});
+      // INP (Chrome)
+      if(perf && "eventCounts" in perf){
+        new PerformanceObserver((list)=>{ const e=list.getEntries().pop(); if(e && e.name==="interaction"){ log("INP", Math.round(e.duration)); } }).observe({type:"event", buffered:true});
+      }
+    }catch(_){}
+  }
+})();
+</script>
 </head>
 <body data-motion="${motion}">
   <div class="wrap">

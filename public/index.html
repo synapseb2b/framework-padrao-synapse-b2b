@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Framework Padrão — Synapse B2B</title><meta name="description" content="Fábrica de Sites Inteligentes: performance, governança e IA na borda com Cloudflare.">
-  <meta name="synapse-motion" content="sutil">
+  <meta name="synapse-motion" content="vivo">
   <link rel="canonical" href="https://framework-padrao-synapse-b2b.pages.dev">
   <meta property="og:type" content="website"><meta property="og:title" content="Framework Padrão — Synapse B2B">
   <meta property="og:description" content="Fábrica de Sites Inteligentes: performance, governança e IA na borda com Cloudflare."><meta property="og:url" content="https://framework-padrao-synapse-b2b.pages.dev">
@@ -38,8 +38,26 @@
     [data-motion="vivo"] .btn.primary:hover { transform: translateY(-2px) scale(1.01) }
   
   </style>
+  <script>
+(function(){
+  function log(name, value){ try{ console.log("[WEB-VITAL]", name, value); }catch(e){} }
+  if("PerformanceObserver" in window){
+    try{
+      const perf = window.performance;
+      // LCP
+      new PerformanceObserver((list)=>{ const e=list.getEntries().pop(); if(e) log("LCP", Math.round(e.startTime)); }).observe({type:"largest-contentful-paint", buffered:true});
+      // CLS
+      let cls=0; new PerformanceObserver((list)=>{ for(const e of list.getEntries()){ if(!e.hadRecentInput){ cls += e.value; } } log("CLS", +cls.toFixed(3)); }).observe({type:"layout-shift", buffered:true});
+      // INP (Chrome)
+      if(perf && "eventCounts" in perf){
+        new PerformanceObserver((list)=>{ const e=list.getEntries().pop(); if(e && e.name==="interaction"){ log("INP", Math.round(e.duration)); } }).observe({type:"event", buffered:true});
+      }
+    }catch(_){}
+  }
+})();
+</script>
 </head>
-<body data-motion="sutil">
+<body data-motion="vivo">
   <div class="wrap">
     <header>
       <strong>Synapse B2B</strong>
