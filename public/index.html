@@ -3,13 +3,35 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Framework Padrão — Synapse B2B</title><meta name="description" content="Fábrica de Sites Inteligentes: performance, governança e IA na borda com Cloudflare.">
-  <meta name="synapse-motion" content="vivo">
+  <meta name="synapse-motion" content="sutil">
   <link rel="canonical" href="https://framework-padrao-synapse-b2b.pages.dev">
   <meta property="og:type" content="website"><meta property="og:title" content="Framework Padrão — Synapse B2B">
   <meta property="og:description" content="Fábrica de Sites Inteligentes: performance, governança e IA na borda com Cloudflare."><meta property="og:url" content="https://framework-padrao-synapse-b2b.pages.dev">
   <meta property="og:image" content="/og-image.png"><meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@synapseb2b">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Synapse B2B","url":"https://framework-padrao-synapse-b2b.pages.dev","logo":"/og-image.png"}</script>
+  <script>
+  (function(){
+    function log(name, value){ try{ console.log("[WEB-VITAL]", name, value); }catch(e){} }
+    if("PerformanceObserver" in window){
+      try{
+        // LCP
+        new PerformanceObserver((list)=>{ const e=list.getEntries().pop(); if(e) log("LCP", Math.round(e.startTime)); })
+          .observe({type:"largest-contentful-paint", buffered:true});
+        // CLS
+        let cls=0;
+        new PerformanceObserver((list)=>{ for(const e of list.getEntries()){ if(!e.hadRecentInput){ cls += e.value; } } })
+          .observe({type:"layout-shift", buffered:true});
+        addEventListener("visibilitychange", function(){ if(document.visibilityState==="hidden"){ log("CLS", +cls.toFixed(3)); } });
+        // INP (interações)
+        try{
+          new PerformanceObserver((list)=>{ const e=list.getEntries().pop(); if(e && e.name==="interaction"){ log("INP", Math.round(e.duration)); } })
+            .observe({type:"event", buffered:true});
+        }catch(_){}
+      }catch(_){}
+    }
+  })();
+  </script>
   <style>
     :root{--bg:#0f172a;--fg:#e5e7eb;--fg-dim:#94a3b8;--acc:#22d3ee}
     *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,Segoe UI,Roboto,Inter}
@@ -20,50 +42,28 @@
     h1{font-size:clamp(28px,4vw,48px);margin:.25em 0 .4em}
     .sub{color:var(--fg-dim);max-width:60ch}
     .cta{display:flex;gap:12px;margin-top:20px}
-    .btn{padding:12px 16px;border-radius:12px;border:1px solid #334155;color:var(--fg);text-decoration:none}
+    .btn{padding:12px 16px;border-radius:12px;border:1px solid #334155;color:var(--fg);text-decoration:none;transition:transform .18s ease}
     .btn.primary{background:linear-gradient(90deg,#22d3ee33,#22d3ee11);border-color:#22d3ee55}
     .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:28px}
     .card{border:1px solid #334155;border-radius:14px;padding:16px;background:rgba(15,23,42,.4)}
     .muted{color:var(--fg-dim)}
     footer{margin-top:48px;padding-top:16px;border-top:1px solid #1f2937}
     a{color:var(--fg)}
-    
-    @media (prefers-reduced-motion: reduce){
-      *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
-    }
-    [data-motion="desativado"] * { animation:none!important; transition:none!important }
-    [data-motion="sutil"] .btn.primary { transition: transform .15s ease }
-    [data-motion="sutil"] .btn.primary:hover { transform: translateY(-1px) }
-    [data-motion="vivo"] .btn.primary { transition: transform .2s cubic-bezier(.2,.8,.2,1) }
-    [data-motion="vivo"] .btn.primary:hover { transform: translateY(-2px) scale(1.01) }
-  
+    /* Motion intensities */
+    body[data-motion="sutil"] .btn:hover{ transform: translateY(-1px); }
+    body[data-motion="vivo"] .btn:hover{ transform: translateY(-2px) scale(1.01); }
+    body[data-motion="desativado"] .btn{ transition:none }
+    body[data-motion="desativado"] .btn:hover{ transform:none }
   </style>
-  <script>
-(function(){
-  function log(name, value){ try{ console.log("[WEB-VITAL]", name, value); }catch(e){} }
-  if("PerformanceObserver" in window){
-    try{
-      const perf = window.performance;
-      // LCP
-      new PerformanceObserver((list)=>{ const e=list.getEntries().pop(); if(e) log("LCP", Math.round(e.startTime)); }).observe({type:"largest-contentful-paint", buffered:true});
-      // CLS
-      let cls=0; new PerformanceObserver((list)=>{ for(const e of list.getEntries()){ if(!e.hadRecentInput){ cls += e.value; } } log("CLS", +cls.toFixed(3)); }).observe({type:"layout-shift", buffered:true});
-      // INP (Chrome)
-      if(perf && "eventCounts" in perf){
-        new PerformanceObserver((list)=>{ const e=list.getEntries().pop(); if(e && e.name==="interaction"){ log("INP", Math.round(e.duration)); } }).observe({type:"event", buffered:true});
-      }
-    }catch(_){}
-  }
-})();
-</script>
 </head>
-<body data-motion="vivo">
+<body data-motion="sutil">
   <div class="wrap">
     <header>
       <strong>Synapse B2B</strong>
       <nav><a href="/">Início</a><a href="#solucoes">Soluções</a><a href="#contato">Contato</a></nav>
     </header>
     <main>
+      
       <p class="eyebrow">Plataforma Synapse B2B</p>
       <h1>Sites que vendem e escalam como software</h1>
       <p class="sub">Governança, performance e IA na borda. Produção industrial de ativos digitais.</p>
@@ -77,6 +77,7 @@
         </div>
       </section>
     </main>
+    
     <footer class="muted">
       <span>© 2025 Synapse B2B</span>
       <div></div>

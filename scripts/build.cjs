@@ -1,4 +1,4 @@
-﻿/* scripts/build.cjs */
+﻿/* scripts/build.cjs (flags + vitals) */
 const fs = require("fs");
 const path = require("path");
 const { parse } = require("yaml");
@@ -8,17 +8,17 @@ const paths = {
   site: path.join(ROOT, "config", "site.yaml"),
   copy: path.join(ROOT, "config", "copy", "pt-BR.yaml"),
   flags: path.join(ROOT, "config", "flags.yaml"),
-  perf:  path.join(ROOT, "config", "performance.yaml"),
   out:  path.join(ROOT, "public", "index.html"),
   snap: path.join(ROOT, "docs", "last-good.json"),
 };
 
 function readYaml(p){ return parse(fs.readFileSync(p, "utf8")); }
-function safeRead(p){ try { return readYaml(p); } catch { return {}; } }
+function ensurePublic(){ const p=path.join(ROOT,"public"); if(!fs.existsSync(p)) fs.mkdirSync(p); }
+function writeSnapshot(data){ fs.writeFileSync(paths.snap, JSON.stringify(data,null,2)); }
+function readSnapshot(){ return fs.existsSync(paths.snap) ? JSON.parse(fs.readFileSync(paths.snap,"utf8")) : null; }
 
 function renderHTML(data) {
   const { site, seo, copy, flags } = data;
-  const motion = (flags?.motionIntensity || "sutil").toLowerCase(); // desativado|sutil|vivo
   const title = site?.title || "Synapse B2B";
   const desc  = seo?.description || "";
   const url   = site?.url || "";
@@ -28,17 +28,48 @@ function renderHTML(data) {
   const proof = copy?.proof?.kpis || [];
   const jsonLd = {"@context":"https://schema.org","@type":"Organization","name":site?.brand||"Synapse B2B","url":url,"logo":ogImg};
 
-  // classes utilitárias simples para “motion”
-  const motionCSS = `
-    @media (prefers-reduced-motion: reduce){
-      *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  const motion = (flags?.motionIntensity ?? "sutil").toLowerCase();
+  const showHero = !!(flags?.features?.hero ?? true);
+  const showFooter = !!(flags?.features?.footer ?? true);
+
+  const vitalsScript = `
+  <script>
+  (function(){
+    function log(name, value){ try{ console.log("[WEB-VITAL]", name, value); }catch(e){} }
+    if("PerformanceObserver" in window){
+      try{
+        // LCP
+        new PerformanceObserver((list)=>{ const e=list.getEntries().pop(); if(e) log("LCP", Math.round(e.startTime)); })
+          .observe({type:"largest-contentful-paint", buffered:true});
+        // CLS
+        let cls=0;
+        new PerformanceObserver((list)=>{ for(const e of list.getEntries()){ if(!e.hadRecentInput){ cls += e.value; } } })
+          .observe({type:"layout-shift", buffered:true});
+        addEventListener("visibilitychange", function(){ if(document.visibilityState==="hidden"){ log("CLS", +cls.toFixed(3)); } });
+        // INP (interações)
+        try{
+          new PerformanceObserver((list)=>{ const e=list.getEntries().pop(); if(e && e.name==="interaction"){ log("INP", Math.round(e.duration)); } })
+            .observe({type:"event", buffered:true});
+        }catch(_){}
+      }catch(_){}
     }
-    [data-motion="desativado"] * { animation:none!important; transition:none!important }
-    [data-motion="sutil"] .btn.primary { transition: transform .15s ease }
-    [data-motion="sutil"] .btn.primary:hover { transform: translateY(-1px) }
-    [data-motion="vivo"] .btn.primary { transition: transform .2s cubic-bezier(.2,.8,.2,1) }
-    [data-motion="vivo"] .btn.primary:hover { transform: translateY(-2px) scale(1.01) }
-  `;
+  })();
+  </script>`.trim();
+
+  const heroSection = !showHero ? "" : `
+      <p class="eyebrow">${hero.eyebrow||""}</p>
+      <h1>${hero.headline||""}</h1>
+      <p class="sub">${hero.subhead||""}</p>
+      <div class="cta">
+        <a class="btn primary" href="${hero?.primaryCta?.href||"#"}">${hero?.primaryCta?.label||"Começar"}</a>
+        <a class="btn" href="${hero?.secondaryCta?.href||"#"}">${hero?.secondaryCta?.label||"Saiba mais"}</a>
+      </div>`;
+
+  const footerSection = !showFooter ? "" : `
+    <footer class="muted">
+      <span>© ${new Date().getFullYear()} ${site?.brand||"Synapse B2B"}</span>
+      <div>${((site?.layout?.footer?.links)||[]).map(l=>`<a href="${l.href}">${l.label}</a>`).join(" · ")}</div>
+    </footer>`;
 
   return `<!doctype html>
 <html lang="${site?.lang||"pt-BR"}">
@@ -52,6 +83,7 @@ function renderHTML(data) {
   <meta property="og:image" content="${ogImg}"><meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="${twitter}">
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
+  ${vitalsScript}
   <style>
     :root{--bg:#0f172a;--fg:#e5e7eb;--fg-dim:#94a3b8;--acc:#22d3ee}
     *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,Segoe UI,Roboto,Inter}
@@ -62,33 +94,19 @@ function renderHTML(data) {
     h1{font-size:clamp(28px,4vw,48px);margin:.25em 0 .4em}
     .sub{color:var(--fg-dim);max-width:60ch}
     .cta{display:flex;gap:12px;margin-top:20px}
-    .btn{padding:12px 16px;border-radius:12px;border:1px solid #334155;color:var(--fg);text-decoration:none}
+    .btn{padding:12px 16px;border-radius:12px;border:1px solid #334155;color:var(--fg);text-decoration:none;transition:transform .18s ease}
     .btn.primary{background:linear-gradient(90deg,#22d3ee33,#22d3ee11);border-color:#22d3ee55}
     .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:28px}
     .card{border:1px solid #334155;border-radius:14px;padding:16px;background:rgba(15,23,42,.4)}
     .muted{color:var(--fg-dim)}
     footer{margin-top:48px;padding-top:16px;border-top:1px solid #1f2937}
     a{color:var(--fg)}
-    ${motionCSS}
+    /* Motion intensities */
+    body[data-motion="sutil"] .btn:hover{ transform: translateY(-1px); }
+    body[data-motion="vivo"] .btn:hover{ transform: translateY(-2px) scale(1.01); }
+    body[data-motion="desativado"] .btn{ transition:none }
+    body[data-motion="desativado"] .btn:hover{ transform:none }
   </style>
-  <script>
-(function(){
-  function log(name, value){ try{ console.log("[WEB-VITAL]", name, value); }catch(e){} }
-  if("PerformanceObserver" in window){
-    try{
-      const perf = window.performance;
-      // LCP
-      new PerformanceObserver((list)=>{ const e=list.getEntries().pop(); if(e) log("LCP", Math.round(e.startTime)); }).observe({type:"largest-contentful-paint", buffered:true});
-      // CLS
-      let cls=0; new PerformanceObserver((list)=>{ for(const e of list.getEntries()){ if(!e.hadRecentInput){ cls += e.value; } } log("CLS", +cls.toFixed(3)); }).observe({type:"layout-shift", buffered:true});
-      // INP (Chrome)
-      if(perf && "eventCounts" in perf){
-        new PerformanceObserver((list)=>{ const e=list.getEntries().pop(); if(e && e.name==="interaction"){ log("INP", Math.round(e.duration)); } }).observe({type:"event", buffered:true});
-      }
-    }catch(_){}
-  }
-})();
-</script>
 </head>
 <body data-motion="${motion}">
   <div class="wrap">
@@ -97,39 +115,25 @@ function renderHTML(data) {
       <nav>${(site?.navigation||[]).map(i=>`<a href="${i.href}">${i.label}</a>`).join("")}</nav>
     </header>
     <main>
-      <p class="eyebrow">${hero.eyebrow||""}</p>
-      <h1>${hero.headline||""}</h1>
-      <p class="sub">${hero.subhead||""}</p>
-      <div class="cta">
-        <a class="btn primary" href="${hero?.primaryCta?.href||"#"}">${hero?.primaryCta?.label||"Começar"}</a>
-        <a class="btn" href="${hero?.secondaryCta?.href||"#"}">${hero?.secondaryCta?.label||"Saiba mais"}</a>
-      </div>
+      ${heroSection}
       <section style="margin-top:32px">
         <div class="kpis">
           ${proof.map(k=>`<div class="card"><strong>${k.label}</strong><div class="muted">${k.desc||""}</div></div>`).join("")}
         </div>
       </section>
     </main>
-    <footer class="muted">
-      <span>© ${new Date().getFullYear()} ${site?.brand||"Synapse B2B"}</span>
-      <div>${((site?.layout?.footer?.links)||[]).map(l=>`<a href="${l.href}">${l.label}</a>`).join(" · ")}</div>
-    </footer>
+    ${footerSection}
   </div>
 </body>
 </html>`;
 }
 
-function writeSnapshot(data){ fs.writeFileSync(paths.snap, JSON.stringify(data,null,2)); }
-function readSnapshot(){ return fs.existsSync(paths.snap) ? JSON.parse(fs.readFileSync(paths.snap,"utf8")) : null; }
-function ensurePublic(){ const p=path.join(ROOT,"public"); if(!fs.existsSync(p)) fs.mkdirSync(p); }
-
 (function main(){
   try {
-    const site  = safeRead(paths.site);
-    const copy  = safeRead(paths.copy);
-    const flags = safeRead(paths.flags);
-    const perf  = safeRead(paths.perf);
-    const data = { site: site.site, seo: site.seo, copy, flags, perf };
+    const site = readYaml(paths.site);
+    const copy = readYaml(paths.copy);
+    const flags = readYaml(paths.flags);
+    const data = { site: site.site, seo: site.seo, copy, flags };
     ensurePublic();
     fs.writeFileSync(paths.out, renderHTML(data));
     writeSnapshot(data);

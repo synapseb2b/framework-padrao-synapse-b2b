@@ -1,4 +1,4 @@
-﻿motionIntensity: sutil   # valores: desativado | sutil | vivo
+﻿motionIntensity: sutil   # opções: sutil | vivo | desativado
 features:
   hero: true
   footer: true
