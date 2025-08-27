@@ -7,14 +7,18 @@ const ROOT = process.cwd();
 const paths = {
   site: path.join(ROOT, "config", "site.yaml"),
   copy: path.join(ROOT, "config", "copy", "pt-BR.yaml"),
+  flags: path.join(ROOT, "config", "flags.yaml"),
+  perf:  path.join(ROOT, "config", "performance.yaml"),
   out:  path.join(ROOT, "public", "index.html"),
   snap: path.join(ROOT, "docs", "last-good.json"),
 };
 
 function readYaml(p){ return parse(fs.readFileSync(p, "utf8")); }
+function safeRead(p){ try { return readYaml(p); } catch { return {}; } }
 
 function renderHTML(data) {
-  const { site, seo, copy } = data;
+  const { site, seo, copy, flags } = data;
+  const motion = (flags?.motionIntensity || "sutil").toLowerCase(); // desativado|sutil|vivo
   const title = site?.title || "Synapse B2B";
   const desc  = seo?.description || "";
   const url   = site?.url || "";
@@ -24,11 +28,24 @@ function renderHTML(data) {
   const proof = copy?.proof?.kpis || [];
   const jsonLd = {"@context":"https://schema.org","@type":"Organization","name":site?.brand||"Synapse B2B","url":url,"logo":ogImg};
 
+  // classes utilitárias simples para “motion”
+  const motionCSS = `
+    @media (prefers-reduced-motion: reduce){
+      *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+    }
+    [data-motion="desativado"] * { animation:none!important; transition:none!important }
+    [data-motion="sutil"] .btn.primary { transition: transform .15s ease }
+    [data-motion="sutil"] .btn.primary:hover { transform: translateY(-1px) }
+    [data-motion="vivo"] .btn.primary { transition: transform .2s cubic-bezier(.2,.8,.2,1) }
+    [data-motion="vivo"] .btn.primary:hover { transform: translateY(-2px) scale(1.01) }
+  `;
+
   return `<!doctype html>
 <html lang="${site?.lang||"pt-BR"}">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>${title}</title><meta name="description" content="${desc}">
+  <meta name="synapse-motion" content="${motion}">
   <link rel="canonical" href="${url}">
   <meta property="og:type" content="website"><meta property="og:title" content="${title}">
   <meta property="og:description" content="${desc}"><meta property="og:url" content="${url}">
@@ -52,9 +69,10 @@ function renderHTML(data) {
     .muted{color:var(--fg-dim)}
     footer{margin-top:48px;padding-top:16px;border-top:1px solid #1f2937}
     a{color:var(--fg)}
+    ${motionCSS}
   </style>
 </head>
-<body>
+<body data-motion="${motion}">
   <div class="wrap">
     <header>
       <strong>${site?.brand || "Synapse B2B"}</strong>
@@ -89,9 +107,11 @@ function ensurePublic(){ const p=path.join(ROOT,"public"); if(!fs.existsSync(p))
 
 (function main(){
   try {
-    const site = readYaml(paths.site);
-    const copy = readYaml(paths.copy);
-    const data = { site: site.site, seo: site.seo, copy };
+    const site  = safeRead(paths.site);
+    const copy  = safeRead(paths.copy);
+    const flags = safeRead(paths.flags);
+    const perf  = safeRead(paths.perf);
+    const data = { site: site.site, seo: site.seo, copy, flags, perf };
     ensurePublic();
     fs.writeFileSync(paths.out, renderHTML(data));
     writeSnapshot(data);

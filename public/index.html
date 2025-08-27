@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Framework Padrão — Synapse B2B</title><meta name="description" content="Fábrica de Sites Inteligentes: performance, governança e IA na borda com Cloudflare.">
+  <meta name="synapse-motion" content="sutil">
   <link rel="canonical" href="https://framework-padrao-synapse-b2b.pages.dev">
   <meta property="og:type" content="website"><meta property="og:title" content="Framework Padrão — Synapse B2B">
   <meta property="og:description" content="Fábrica de Sites Inteligentes: performance, governança e IA na borda com Cloudflare."><meta property="og:url" content="https://framework-padrao-synapse-b2b.pages.dev">
@@ -26,9 +27,19 @@
     .muted{color:var(--fg-dim)}
     footer{margin-top:48px;padding-top:16px;border-top:1px solid #1f2937}
     a{color:var(--fg)}
+    
+    @media (prefers-reduced-motion: reduce){
+      *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+    }
+    [data-motion="desativado"] * { animation:none!important; transition:none!important }
+    [data-motion="sutil"] .btn.primary { transition: transform .15s ease }
+    [data-motion="sutil"] .btn.primary:hover { transform: translateY(-1px) }
+    [data-motion="vivo"] .btn.primary { transition: transform .2s cubic-bezier(.2,.8,.2,1) }
+    [data-motion="vivo"] .btn.primary:hover { transform: translateY(-2px) scale(1.01) }
+  
   </style>
 </head>
-<body>
+<body data-motion="sutil">
   <div class="wrap">
     <header>
       <strong>Synapse B2B</strong>

@@ -54,5 +54,18 @@
         }
       ]
     }
+  },
+  "flags": {
+    "motionIntensity": "sutil",
+    "features": {
+      "hero": true,
+      "footer": true
+    }
+  },
+  "perf": {
+    "budgets": {
+      "homepage_kb": 180,
+      "block_kb": 40
+    }
   }
 }
