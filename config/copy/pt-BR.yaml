@@ -1,0 +1,18 @@
+﻿hero:
+  eyebrow: "Plataforma Synapse B2B"
+  headline: "Sites que vendem e escalam como software"
+  subhead: "Governança, performance e IA na borda. Produção industrial de ativos digitais."
+  primaryCta:
+    label: "Solicitar Blueprint"
+    href: "#contato"
+  secondaryCta:
+    label: "Ver diferenciais"
+    href: "#solucoes"
+proof:
+  kpis:
+    - label: "LCP < 1,5s"
+      desc: "Core Web Vitals em produção"
+    - label: "CI/CD com gates"
+      desc: "A11y + Lighthouse automatizados"
+    - label: "IA assistiva"
+      desc: "Copy-tuning e diagnóstico"

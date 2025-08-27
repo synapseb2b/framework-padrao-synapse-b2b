@@ -1,0 +1,23 @@
+﻿site:
+  lang: pt-BR
+  title: "Framework Padrão — Synapse B2B"
+  url: "https://framework-padrao-synapse-b2b.pages.dev"
+  brand: "Synapse B2B"
+  navigation:
+    - label: "Início"
+      href: "/"
+    - label: "Soluções"
+      href: "#solucoes"
+    - label: "Contato"
+      href: "#contato"
+seo:
+  description: "Fábrica de Sites Inteligentes: performance, governança e IA na borda com Cloudflare."
+  image: "/og-image.png"
+  twitter: "@synapseb2b"
+layout:
+  footer:
+    links:
+      - label: "Política de Privacidade"
+        href: "#"
+      - label: "Termos"
+        href: "#"
