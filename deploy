@@ -1,115 +1,33 @@
-
 #!/usr/bin/env bash
 # ========================================
-# 🚀 Script Universal de Deploy — Synapse B2B
-# Funciona em Bash (Linux/Mac/WSL) e PowerShell (Windows)
+# 🚀 Deploy Universal (fix working dir)
 # ========================================
 
-# --- Bash (Linux/Mac/WSL) ---
+# --- Bash (Linux/Mac/WSL/Git Bash) ---
 if [ "$(uname 2>/dev/null)" = "Linux" ] || [ "$(uname 2>/dev/null)" = "Darwin" ] || [ "$(uname -o 2>/dev/null)" = "Msys" ]; then
-  echo "🔄 Iniciando deploy do Framework Padrão Synapse B2B (Bash)..."
-  wrangler pages deploy public --project-name=framework-padrao-synapse-b2b --commit-dirty=true
-  if [ $? -eq 0 ]; then
-    echo "✅ Deploy concluído com sucesso!"
-    echo "🌎 Verifique em: https://framework-padrao-synapse-b2b.pages.dev"
-  else
-    echo "❌ Erro no deploy. Verifique o log acima."
-  fi
-  exit 0
+  REPO_DIR="$(pwd)"
+  echo "🔄 Deploy (Bash) a partir de: $REPO_DIR"
+  wrangler pages deploy "$REPO_DIR/public" --project-name=framework-padrao-synapse-b2b --commit-dirty=true
+  exit $?
 fi
 
-# Everything below here is ignored in Bash
+# Tudo abaixo é ignorado pelo Bash
 : <<'POWERSHELL'
 # --- PowerShell (Windows) ---
 POWERSHELL
 
-Write-Host "🔄 Iniciando deploy do Framework Padrão Synapse B2B (PowerShell)..." -ForegroundColor Cyan
-wrangler pages deploy public --project-name=framework-padrao-synapse-b2b --commit-dirty=true
-
-if ($LASTEXITCODE -eq 0) {
+$repo = Split-Path -Parent $MyInvocation.MyCommand.Path
+Write-Host "🔄 Deploy (PowerShell) a partir de: $repo" -ForegroundColor Cyan
+Push-Location $repo
+try {
+  wrangler pages deploy "$repo\public" --project-name=framework-padrao-synapse-b2b --commit-dirty=true
+  if ($LASTEXITCODE -eq 0) {
     Write-Host "✅ Deploy concluído com sucesso!" -ForegroundColor Green
     Write-Host "🌎 Verifique em: https://framework-padrao-synapse-b2b.pages.dev" -ForegroundColor Yellow
-} else {
-    Write-Host "❌ Erro no deploy. Verifique o log acima." -ForegroundColor Red
-}
-Pause
-
-[200~EOF
-~
-cat > deploy <<'EOF'
-
-#!/usr/bin/env bash
-# ========================================
-# 🚀 Script Universal de Deploy — Synapse B2B
-# Funciona em Bash (Linux/Mac/WSL) e PowerShell (Windows)
-# ========================================
-
-# --- Bash (Linux/Mac/WSL) ---
-if [ "$(uname 2>/dev/null)" = "Linux" ] || [ "$(uname 2>/dev/null)" = "Darwin" ] || [ "$(uname -o 2>/dev/null)" = "Msys" ]; then
-  echo "🔄 Iniciando deploy do Framework Padrão Synapse B2B (Bash)..."
-  wrangler pages deploy public --project-name=framework-padrao-synapse-b2b --commit-dirty=true
-  if [ $? -eq 0 ]; then
-    echo "✅ Deploy concluído com sucesso!"
-    echo "🌎 Verifique em: https://framework-padrao-synapse-b2b.pages.dev"
-  else
-    echo "❌ Erro no deploy. Verifique o log acima."
-  fi
-  exit 0
-fi
-
-# Everything below here is ignored in Bash
-: <<'POWERSHELL'
-# --- PowerShell (Windows) ---
-POWERSHELL
-
-Write-Host "🔄 Iniciando deploy do Framework Padrão Synapse B2B (PowerShell)..." -ForegroundColor Cyan
-wrangler pages deploy public --project-name=framework-padrao-synapse-b2b --commit-dirty=true
-
-if ($LASTEXITCODE -eq 0) {
-    Write-Host "✅ Deploy concluído com sucesso!" -ForegroundColor Green
-    Write-Host "🌎 Verifique em: https://framework-padrao-synapse-b2b.pages.dev" -ForegroundColor Yellow
-} else {
-    Write-Host "❌ Erro no deploy. Verifique o log acima." -ForegroundColor Red
-}
-Pause
-
-[200~EOF
-~
-chmod +x deploy
-
-rm deploy
-cat > deploy <<'EOF'
-#!/usr/bin/env bash
-# ========================================
-# 🚀 Script Universal de Deploy — Synapse B2B
-# Funciona em Bash (Linux/Mac/WSL) e PowerShell (Windows)
-# ========================================
-
-# --- Bash (Linux/Mac/WSL) ---
-if [ "$(uname 2>/dev/null)" = "Linux" ] || [ "$(uname 2>/dev/null)" = "Darwin" ] || [ "$(uname -o 2>/dev/null)" = "Msys" ]; then
-  echo "🔄 Iniciando deploy do Framework Padrão Synapse B2B (Bash)..."
-  wrangler pages deploy public --project-name=framework-padrao-synapse-b2b --commit-dirty=true
-  if [ $? -eq 0 ]; then
-    echo "✅ Deploy concluído com sucesso!"
-    echo "🌎 Verifique em: https://framework-padrao-synapse-b2b.pages.dev"
-  else
-    echo "❌ Erro no deploy. Verifique o log acima."
-  fi
-  exit 0
-fi
-
-# Everything below here is ignored in Bash
-: <<'POWERSHELL'
-# --- PowerShell (Windows) ---
-POWERSHELL
-
-Write-Host "🔄 Iniciando deploy do Framework Padrão Synapse B2B (PowerShell)..." -ForegroundColor Cyan
-wrangler pages deploy public --project-name=framework-padrao-synapse-b2b --commit-dirty=true
-
-if ($LASTEXITCODE -eq 0) {
-    Write-Host "✅ Deploy concluído com sucesso!" -ForegroundColor Green
-    Write-Host "🌎 Verifique em: https://framework-padrao-synapse-b2b.pages.dev" -ForegroundColor Yellow
-} else {
-    Write-Host "❌ Erro no deploy. Verifique o log acima." -ForegroundColor Red
+  } else {
+    throw "❌ Deploy falhou com exit code $LASTEXITCODE"
+  }
+} finally {
+  Pop-Location
 }
 Pause
